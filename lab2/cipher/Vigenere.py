@@ -1,4 +1,4 @@
-from lab1.cipher.Cipher import Cipher
+from lab2.cipher.Cipher import Cipher
 
 
 class Vigenere(Cipher):

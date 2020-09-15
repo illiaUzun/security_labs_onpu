@@ -1,6 +1,6 @@
 import argparse
 
-from lab1.cipher.Vigenere import Vigenere
+from lab2.cipher.Vigenere import Vigenere
 
 
 def main():

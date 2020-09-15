@@ -1,10 +1,10 @@
 import argparse
 
-from lab1.cipher.Vigenere import Vigenere
+from lab2.cipher.Vigenere import Vigenere
 
 
 def main():
-    '''Encodes file and stores result in specified one'''
+    '''Decodes file and stores result in specified one'''
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--key', '-k', required=True)
@@ -13,9 +13,8 @@ def main():
 
     arguments = parser.parse_args()
 
-    Vigenere(arguments.key).encipher_file(arguments.input, arguments.output)
-    print(f'Your file was successfully encoded.')
-
+    Vigenere(arguments.key).decipher_file(arguments.input, arguments.output)
+    print(f'Your file was successfully decoded.')
 
 if __name__ == '__main__':
     main()
