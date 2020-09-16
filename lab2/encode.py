@@ -1,6 +1,6 @@
 import argparse
 
-from lab2.cipher.Vigenere import Vigenere
+from lab2.constants import CIPHERS
 
 
 def main():
@@ -9,10 +9,11 @@ def main():
 
     parser.add_argument('--key', '-k', required=True)
     parser.add_argument('--input', '-i', required=True)
+    parser.add_argument('--type', '-t', required=True)
 
     arguments = parser.parse_args()
 
-    encoded = Vigenere(arguments.key).encipher(arguments.input)
+    encoded = CIPHERS.get(arguments.type)(arguments.key).encipher(arguments.input)
     print(f'Encoded string: {encoded}')
 
 
