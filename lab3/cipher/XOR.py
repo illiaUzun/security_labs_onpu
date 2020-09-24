@@ -20,7 +20,7 @@ class XOR(Cipher):
                 if i == len(self.key[j]):
                     j = j + 1 if j < len(self.key) else 0
                     i = 0
-                cline += chr(ord(char) ^ ord(self.key[j][i])).lstrip("0x").rstrip("L")
+                cline += hex(ord(char) ^ ord(self.key[j][i])).lstrip("0x").rstrip("L")
             result.append(cline)
         return ''.join(result)
 
