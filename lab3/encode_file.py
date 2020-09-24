@@ -1,6 +1,6 @@
 import argparse
 
-from lab2.constants import CIPHERS
+from lab3.constants import CIPHERS
 
 
 def main():
@@ -13,6 +13,7 @@ def main():
     parser.add_argument('--type', '-t', required=True)
 
     arguments = parser.parse_args()
+
 
     CIPHERS.get(arguments.type)(arguments.key).encipher_file(arguments.input, arguments.output)
     print(f'Your file was successfully encoded.')

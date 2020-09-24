@@ -1,6 +1,6 @@
 import argparse
 
-from lab2.constants import CIPHERS
+from lab3.constants import CIPHERS
 
 
 def main():

@@ -1,4 +1,4 @@
-from lab2.cipher.Cipher import Cipher
+from lab3.cipher.Cipher import Cipher
 
 
 class PolybiusSquare(Cipher):

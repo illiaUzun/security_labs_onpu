@@ -1,7 +1,7 @@
 import argparse
 
-from lab2.analysis.LetterFrequencyAnalysis import LetterFrequencyAnalysis
-from lab2.analysis.ResultsFormatter import ResultsFormatter
+from lab3.analysis.LetterFrequencyAnalysis import LetterFrequencyAnalysis
+from lab3.analysis.ResultsFormatter import ResultsFormatter
 
 
 def main():
