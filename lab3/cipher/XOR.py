@@ -34,5 +34,5 @@ class XOR(Cipher):
         strings = (''.join(chr(num ^ key) for num in nums) for key in range(256))
         return max(strings, key=lambda s: s.count(' '))
 
-    def xor_strings(xs, ys):
+    def xor_strings(self, xs, ys):
         return "".join(chr(ord(x) ^ ord(y)) for x, y in zip(xs, ys))
