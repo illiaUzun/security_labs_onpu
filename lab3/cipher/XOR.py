@@ -1,6 +1,6 @@
+from binascii import hexlify
 
 from lab3.cipher.Cipher import Cipher
-
 
 class XOR(Cipher):
 
@@ -35,4 +35,7 @@ class XOR(Cipher):
         return max(strings, key=lambda s: s.count(' '))
 
     def xor_strings(self, xs, ys):
-        return "".join(chr(ord(x) ^ ord(y)) for x, y in zip(xs, ys))
+        ascii_string = "".join(chr(ord(x) ^ ord(y)) for x, y in zip(xs, ys))
+        hex_string = hexlify(ascii_string.encode())
+        print("Hex Cipher key:" + hex_string.decode())
+        return ascii_string

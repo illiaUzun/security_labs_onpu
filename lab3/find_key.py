@@ -2,7 +2,6 @@ import argparse
 
 from lab3.constants import CIPHERS
 
-
 def main():
     '''Finds a key by encoded and opend text'''
     parser = argparse.ArgumentParser()
