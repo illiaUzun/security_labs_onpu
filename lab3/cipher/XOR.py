@@ -5,7 +5,7 @@ from lab3.cipher.Cipher import Cipher
 class XOR(Cipher):
 
     def __init__(self, key='fortification'):
-        self.key = [k.upper() for k in key]
+        self.key = [bin(ord(k)) for k in key]
 
     def encipher(self, string):
         """ Enciphers string:
@@ -20,8 +20,8 @@ class XOR(Cipher):
                 if i == len(self.key[j]):
                     j = j + 1 if j < len(self.key) else 0
                     i = 0
-                cline += hex(ord(char) ^ ord(self.key[j][i])).lstrip("0x").rstrip("L")
-            result.append(cline)
+                cline = ord(char) ^ ord(self.key[j][i])
+            result.append(bin(cline))
         return ''.join(result)
 
     def decipher(self, string):
