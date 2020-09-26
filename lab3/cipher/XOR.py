@@ -20,8 +20,8 @@ class XOR(Cipher):
                 if i == len(self.key[j]):
                     j = j + 1 if j < len(self.key) else 0
                     i = 0
-                cline = ord(char) ^ ord(self.key[j][i])
-            result.append(bin(cline))
+                cline += bin(ord(char) ^ ord(self.key[j][i]))
+            result.append(cline)
         return ''.join(result)
 
     def decipher(self, string):
