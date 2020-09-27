@@ -1,11 +1,10 @@
-from binascii import hexlify
-
 from lab3.cipher.Cipher import Cipher
+
 
 class XOR(Cipher):
 
     def __init__(self, key='fortification'):
-        self.key = [bin(ord(k)) for k in key]
+        self.key = [bin(ord(k))[2:].zfill(8) for k in key]
 
     def encipher(self, string):
         """ Enciphers string:
@@ -13,14 +12,16 @@ class XOR(Cipher):
         """
         result = []
         i = 0
-        j = 0
         for line in string:
             cline = ""
             for char in line:
-                if i == len(self.key[j]):
-                    j = j + 1 if j < len(self.key) else 0
+                if i == len(self.key):
                     i = 0
-                cline += bin(ord(char) ^ ord(self.key[j][i]))
+                byteKey = self.key[i]
+                byteOrigin = bin(ord(char))[2:].zfill(8)
+                byteRes = bin(int(byteKey, 2) ^ int(byteOrigin, 2))[2:].zfill(8)
+                cline += str(byteRes)
+                i += 1
             result.append(cline)
         return ''.join(result)
 
@@ -28,14 +29,22 @@ class XOR(Cipher):
         """ Deciphers string:
             :param string: String to decipher.
         """
-        encoded = string
-        import binascii
-        nums = binascii.unhexlify(encoded)
-        strings = (''.join(chr(num ^ key) for num in nums) for key in range(256))
-        return max(strings, key=lambda s: s.count(' '))
+        decoded = []
+        encoded = [string[i:i + 8] for i in range(0, len(string), 8)]
+        i = 0
 
-    def xor_strings(self, xs, ys):
-        ascii_string = "".join(chr(ord(x) ^ ord(y)) for x, y in zip(xs, ys))
-        hex_string = hexlify(ascii_string.encode())
-        print("Hex Cipher key:" + hex_string.decode())
-        return ascii_string
+        for line in encoded:
+            if i == len(self.key):
+                i = 0
+
+            byteKey = self.key[i]
+            byteOrigin = line
+            byteRes = chr(int(byteOrigin, 2) ^ int(byteKey, 2))
+            i += 1
+            decoded.append(byteRes)
+        return ''.join(decoded)
+
+
+    def xor_strings(self, ciphered, open):
+        self.key = [bin(ord(o))[2:].zfill(8) for o in open]
+        return self.decipher(ciphered)
