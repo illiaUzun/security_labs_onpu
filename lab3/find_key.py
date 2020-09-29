@@ -1,6 +1,6 @@
 import argparse
 
-from lab3.constants import CIPHERS
+from lab3.cipher.XOR import XOR
 
 def main():
     '''Finds a key by encoded and opend text'''
@@ -12,7 +12,7 @@ def main():
 
     arguments = parser.parse_args()
 
-    key = CIPHERS.get(arguments.type)('').xor_strings(arguments.ciphered, arguments.open)
+    key = XOR.xor_strings(arguments.ciphered, arguments.open)
     print(f'Cipher key: {key}')
 
 
