@@ -18,36 +18,33 @@ class Feistel(Cipher):
 
         result = ""
         for i in range(int(len(string) / 8)):
-            str = string[8 * i:8 * (i + 1)]
-            byte_str = str.encode("utf-8")
+            formated = string[8 * i:8 * (i + 1)]
+            byte_str = formated.encode("utf-8")
 
             print("Hex representation      | Text     | Stage")
             print("------------------------+----------+----------")
-            print("{hex} | {plain} | INPUT".format(plain=str, hex=self.__str2hex(str)))
+            print("{hex} | {plain} | INPUT".format(plain=formated, hex=self.__str2hex(formated)))
 
             cipher_bytes = self.__encrypt_bstr(byte_str, self.__keys)
             cipher_hex = self.__bstr2hex(cipher_bytes)
             print("\r{hex} | {printable} | ENCRYPTED\n".format(hex=cipher_hex,
                                                                printable=self.__to_printable(cipher_bytes)))
 
-            result += self.__to_printable(cipher_bytes)
+            result += cipher_bytes.decode()
 
         return result
 
     def decipher(self, string):
-        while len(string) % 8 != 0:
-            string += " "
-
         result = ""
-        cipher_bytes = string.encode("utf-8")
+        cipher_bytes = str.encode(string)
 
         for i in range(int(len(cipher_bytes) / 8)):
-            decrypted_bytes = self.__encrypt_bstr(cipher_bytes, self.__keys[::-1])
+            formated = cipher_bytes[8 * i:8 * (i + 1)]
+            decrypted_bytes = self.__encrypt_bstr(formated, self.__keys[::-1])
             decrypted_hex = self.__bstr2hex(decrypted_bytes)
-            print("\r{hex} | {printable} | DECRYPTED\n".format(hex=decrypted_hex,
-                                                               printable=self.__to_printable(decrypted_bytes)))
+            print("\r{hex} | {printable} | DECRYPTED\n".format(hex=decrypted_hex, printable=self.__to_printable(decrypted_bytes)))
 
-            result += self.__to_printable(decrypted_bytes)
+            result += self.__to_printable(decrypted_bytes) + "\n"
         return result
 
     def __rotate_bytes_byte(self, right_end, k):
@@ -104,10 +101,6 @@ class Feistel(Cipher):
 
     def __to_printable(self, byte_string):
         result = ''
-        printable_ascii = range(32, 127)
         for byte in list(byte_string):
-            if byte in printable_ascii:
-                result += chr(byte)
-            else:
-                result += '�'
+            result += chr(byte)
         return result
