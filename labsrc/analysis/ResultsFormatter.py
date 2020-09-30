@@ -1,4 +1,4 @@
-from lab3.analysis.LetterFrequencyAnalysis import AnalysisResults
+from labsrc.analysis.LetterFrequencyAnalysis import AnalysisResults
 
 
 class ResultsFormatter(object):

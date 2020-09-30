@@ -1,14 +1,15 @@
-from lab3.cipher.Cipher import Cipher
+from labsrc.cipher.Cipher import Cipher
 
 from struct import pack
 from binascii import unhexlify
-from time import sleep
-
 
 class Feistel(Cipher):
 
-    def __init__(self, keys=(12, 44, 52, 77, 20, 4, 200, 250, 102, 237, 3, 111, 13, 77, 22, 17)):
-        self.__keys = keys
+    def __init__(self, keys):
+        if keys is None:
+            self.__keys = (12, 44, 52, 77, 20, 4, 200, 250, 102, 237, 3, 111, 13, 77, 22, 17)
+        else:
+            self.__keys = keys
 
     def encipher(self, string):
         while len(string) % 8 != 0:
@@ -21,17 +22,11 @@ class Feistel(Cipher):
 
             print("Hex representation      | Text     | Stage")
             print("------------------------+----------+----------")
-            print("{hex} | {plain} | INPUT".format(
-                plain=str,
-                hex=self.__str2hex(str)
-            ))
+            print("{hex} | {plain} | INPUT".format(plain=str, hex=self.__str2hex(str)))
 
             cipher_bytes = self.__encrypt_bstr(str_b, self.__keys)
             cipher_hex = self.__bstr2hex(cipher_bytes)
-            print("\r{hex} | {printable} | ENCRYPTED\n".format(
-                hex=cipher_hex,
-                printable=self.__to_printable(cipher_bytes)
-            ))
+            print("\r{hex} | {printable} | ENCRYPTED\n".format(hex=cipher_hex, printable=self.__to_printable(cipher_bytes)))
 
             result += self.__to_printable(cipher_bytes)
 
@@ -50,23 +45,23 @@ class Feistel(Cipher):
     def decipher(self, string):
         pass
 
-    def __f(RE, k):
+    def __rotate_bytes_byte(self, RE, k):
         """Function that rotates the bytes k places"""
         lst = RE
         return lst[k:] + lst[:k]
 
-    def __f1(RE, k):
+    def __append_to_each_byte(self, RE, k):
         """Function that adds itself to each byte"""
         return [b + k for b in RE]
 
-    def __f2(RE, k):
+    def __append_to_one_byte(self, RE, k):
         """Function that adds itself to 1 byte"""
         i = k % len(RE)
         result = RE[:]
         result[i] = (k + RE[i]) % 256
         return result
 
-    def __xor_list(LE, RE_f):
+    def __xor_list(self, LE, RE_f):
         result = []
         for index, c in enumerate(LE):
             result.append(c ^ RE_f[index])
@@ -76,7 +71,7 @@ class Feistel(Cipher):
         assert (len(b_string) == 8)
         LE = b_string[:4]
         RE = b_string[4:]
-        RE_f = self.__f(RE, keys[round])
+        RE_f = self.__rotate_bytes_byte(RE, keys[round])
         return RE + self.__xor_list(LE, RE_f)
 
     def __encrypt_bstr(self, bstr, keys):
@@ -89,7 +84,6 @@ class Feistel(Cipher):
                 printable=self.__to_printable(last),
                 round=round + 1
             ))
-            sleep(0.25)
 
         # Swap both sides
         swapped = last[4:] + last[:4]

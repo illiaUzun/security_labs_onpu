@@ -1,10 +1,10 @@
 import argparse
 
-from lab3.constants import CIPHERS
+from labsrc.constants import CIPHERS
 
 
 def main():
-    '''Encodes string and prints result'''
+    '''Decodes string and prints result'''
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--key', '-k', required=True)
@@ -13,8 +13,8 @@ def main():
 
     arguments = parser.parse_args()
 
-    encoded = CIPHERS.get(arguments.type)(arguments.key).encipher(arguments.input)
-    print(f'Encoded string: {encoded}')
+    decoded = CIPHERS.get(arguments.type)(arguments.key).decipher(arguments.input)
+    print(f'Decoded string: {decoded}')
 
 
 if __name__ == '__main__':

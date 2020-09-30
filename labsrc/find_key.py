@@ -1,6 +1,6 @@
 import argparse
 
-from lab3.cipher.XOR import XOR
+from labsrc.cipher.XOR import XOR
 
 def main():
     '''Finds a key by encoded and opend text'''
