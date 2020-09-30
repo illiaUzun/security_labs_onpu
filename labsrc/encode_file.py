@@ -16,8 +16,9 @@ def main():
     arguments = parser.parse_args()
 
     key = arguments.key
-    if key is None:
-        for line in arguments.keyfile:
+    key_file = arguments.keyfile
+    if key is None and key_file is not None:
+        for line in key_file:
             key += line
 
     CIPHERS.get(arguments.type)(key).encipher_file(arguments.input, arguments.output)
