@@ -2,11 +2,14 @@ from labsrc.cipher.Cipher import Cipher
 
 from struct import pack
 from binascii import unhexlify
+import matplotlib.pyplot as plt
 
 
 class Feistel(Cipher):
 
     def __init__(self, keys):
+        self.__avalanche_metrics = []
+
         if keys is None:
             self.__keys = (12, 44, 52, 77, 20, 4, 200, 250, 102, 237, 3, 111, 13, 77, 22, 17)
         else:
@@ -32,6 +35,9 @@ class Feistel(Cipher):
 
             result += cipher_bytes.decode()
 
+            print("\n\n Avalanche metrics:", self.__avalanche_metrics)
+            self.__plot_avalanche_metrics(self.__avalanche_metrics)
+
         return result
 
     def decipher(self, string):
@@ -42,7 +48,8 @@ class Feistel(Cipher):
             formated = cipher_bytes[8 * i:8 * (i + 1)]
             decrypted_bytes = self.__encrypt_bstr(formated, self.__keys[::-1])
             decrypted_hex = self.__bstr2hex(decrypted_bytes)
-            print("\r{hex} | {printable} | DECRYPTED\n".format(hex=decrypted_hex, printable=self.__to_printable(decrypted_bytes)))
+            print("\r{hex} | {printable} | DECRYPTED\n".format(hex=decrypted_hex,
+                                                               printable=self.__to_printable(decrypted_bytes)))
 
             result += self.__to_printable(decrypted_bytes) + "\n"
         return result
@@ -68,17 +75,36 @@ class Feistel(Cipher):
             result.append(c ^ rotated_right_end[index])
         return result
 
-    def __execute_round(self, byte_string, keys, round):
+    def __plot_avalanche_metrics(self, metrics):
+        plt.suptitle('Avalanche effect')
+        plt.xlabel('rounds')
+        plt.ylabel('amount of changed bytes in initial text')
+        plt.plot([round for round in range(len(self.__keys))], metrics)
+        plt.show()
+
+    def __find_avalanche_metrics(self, initial, ciphered):
+        byte_changes_cnt = 0
+        for i, c in zip(initial, ciphered):
+            if i != c:
+                byte_changes_cnt += 1
+
+        self.__avalanche_metrics.append(byte_changes_cnt)
+
+    def __execute_round(self, byte_string, keys, round, initial):
         left_end = byte_string[:4]
         right_end = byte_string[4:]
         rotated_right_end = self.__rotate_bytes_byte(right_end, keys[round])
-        return right_end + self.__xor_list(left_end, rotated_right_end)
+        round_result = right_end + self.__xor_list(left_end, rotated_right_end)
+
+        self.__find_avalanche_metrics(initial, round_result)
+        return round_result
 
     def __encrypt_bstr(self, bstr, keys):
         """Takes a byte string and outputs a byte string"""
         last = list(bstr)
+        initial = list(bstr)
         for round in range(len(keys)):
-            last = self.__execute_round(last, keys, round)
+            last = self.__execute_round(last, keys, round, initial)
             print("\r{hex} | {printable} | ROUND {round}".format(hex=self.__bstr2hex(last),
                                                                  printable=self.__to_printable(last), round=round + 1))
 
