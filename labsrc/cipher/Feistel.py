@@ -24,19 +24,20 @@ class Feistel(Cipher):
             formated = string[8 * i:8 * (i + 1)]
             byte_str = formated.encode("utf-8")
 
-            print("Hex representation      | Text     | Stage")
-            print("------------------------+----------+----------")
-            print("{hex} | {plain} | INPUT".format(plain=formated, hex=self.__str2hex(formated)))
+            print("Binary representation                                                   | Text     | Stage")
+            print("------------------------------------------------------------------------+----------+----------")
+            print("{binary} | {plain} | INPUT".format(plain=formated, binary=self.__str2binary(formated)))
 
             cipher_bytes = self.__encrypt_bstr(byte_str, self.__keys)
-            cipher_hex = self.__bstr2hex(cipher_bytes)
-            print("\r{hex} | {printable} | ENCRYPTED\n".format(hex=cipher_hex,
-                                                               printable=self.__to_printable(cipher_bytes)))
+            cipher_binary = self.__bstr2binary(cipher_bytes)
+            print("\r{binary} | {printable} | ENCRYPTED\n".format(binary=cipher_binary,
+                                                                  printable=self.__to_printable(cipher_bytes)))
 
             result += cipher_bytes.decode()
 
-            print("\n\n Avalanche metrics:", self.__avalanche_metrics)
-            self.__plot_avalanche_metrics(self.__avalanche_metrics)
+        # PLOTTING AVALANCHE
+        # print("\n\n Avalanche metrics:", self.__avalanche_metrics)
+        #  self.__plot_avalanche_metrics(self.__avalanche_metrics)
 
         return result
 
@@ -47,9 +48,9 @@ class Feistel(Cipher):
         for i in range(int(len(cipher_bytes) / 8)):
             formated = cipher_bytes[8 * i:8 * (i + 1)]
             decrypted_bytes = self.__encrypt_bstr(formated, self.__keys[::-1])
-            decrypted_hex = self.__bstr2hex(decrypted_bytes)
-            print("\r{hex} | {printable} | DECRYPTED\n".format(hex=decrypted_hex,
-                                                               printable=self.__to_printable(decrypted_bytes)))
+            decrypted_binary = self.__bstr2binary(decrypted_bytes)
+            print("\r{binary} | {printable} | DECRYPTED\n".format(binary=decrypted_binary,
+                                                                  printable=self.__to_printable(decrypted_bytes)))
 
             result += self.__to_printable(decrypted_bytes) + "\n"
         return result
@@ -105,25 +106,29 @@ class Feistel(Cipher):
         initial = list(bstr)
         for round in range(len(keys)):
             last = self.__execute_round(last, keys, round, initial)
-            print("\r{hex} | {printable} | ROUND {round}".format(hex=self.__bstr2hex(last),
-                                                                 printable=self.__to_printable(last), round=round + 1))
+            print("\r{binary} | {printable} | ROUND {round}".format(binary=self.__bstr2binary(last),
+                                                                    printable=self.__to_printable(last),
+                                                                    round=round + 1))
 
         # Swap both sides
         swapped = last[4:] + last[:4]
 
         return b''.join(map(lambda x: pack("B", x), swapped))
 
-    def __bstr2hex(self, string):
-        return " ".join("{:02x}".format(char) for char in string)
+    def __bstr2binary(self, string):
+        # return " ".join("{:02x}".format(char) for char in string)
+        return " ".join("{0:08b}".format(char) for char in string)
 
-    def __str2hex(self, string):
-        return " ".join("{:02x}".format(ord(char)) for char in string)
+    def __str2binary(self, string):
+        # return " ".join("{:02x}".format(ord(char)) for char in string)
+        return " ".join("{0:08b}".format(ord(char)) for char in string)
 
-    def __hex2bstr(self, hex):
-        return unhexlify(hex.replace(' ', ''))
+    # NOT USED
+    # def __hex2bstr(self, hex):
+    #    return unhexlify(hex.replace(' ', ''))
 
-    def __hex2str(self, hex):
-        return unhexlify(hex.replace(' ', '')).decode('utf-8')
+    # def __hex2str(self, hex):
+    # return unhexlify(hex.replace(' ', '')).decode('utf-8')
 
     def __to_printable(self, byte_string):
         result = ''
