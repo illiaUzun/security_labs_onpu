@@ -1,7 +1,6 @@
 from labsrc.cipher.Cipher import Cipher
 
-from struct import pack
-from binascii import unhexlify
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -11,7 +10,22 @@ class Feistel(Cipher):
         self.__avalanche_metrics = []
 
         if keys is None:
-            self.__keys = (12, 44, 52, 77, 20, 4, 200, 250, 102, 237, 3, 111, 13, 77, 22, 17)
+            self.__keys = (bin(12).replace("0b", "").zfill(8),
+                           bin(44).replace("0b", "").zfill(8),
+                           bin(52).replace("0b", "").zfill(8),
+                           bin(77).replace("0b", "").zfill(8),
+                           bin(20).replace("0b", "").zfill(8),
+                           bin(4).replace("0b", "").zfill(8),
+                           bin(200).replace("0b", "").zfill(8),
+                           bin(250).replace("0b", "").zfill(8),
+                           bin(102).replace("0b", "").zfill(8),
+                           bin(237).replace("0b", "").zfill(8),
+                           bin(3).replace("0b", "").zfill(8),
+                           bin(111).replace("0b", "").zfill(8),
+                           bin(13).replace("0b", "").zfill(8),
+                           bin(77).replace("0b", "").zfill(8),
+                           bin(22).replace("0b", "").zfill(8),
+                           bin(17).replace("0b", "").zfill(8))
         else:
             self.__keys = keys
 
@@ -21,19 +35,18 @@ class Feistel(Cipher):
 
         result = ""
         for i in range(int(len(string) / 8)):
-            formated = string[8 * i:8 * (i + 1)]
-            byte_str = formated.encode("utf-8")
+            formatted = string[8 * i:8 * (i + 1)]
+            binary_str = self.__str2binary(formatted)
+            binary_strs = map(lambda string: string.zfill(8), binary_str.split())
 
-            print("Binary representation                                                   | Text     | Stage")
-            print("------------------------------------------------------------------------+----------+----------")
-            print("{binary} | {plain} | INPUT".format(plain=formated, binary=self.__str2binary(formated)))
+            print("INPUT: {plain}, {binary}".format(plain=string, binary=binary_str))
+            print(f"Binary representation {' ' * 74} | Stage")
+            print(f"{'-' * 97}+{'-' * 9}")
 
-            cipher_bytes = self.__encrypt_bstr(byte_str, self.__keys)
-            cipher_binary = self.__bstr2binary(cipher_bytes)
-            print("\r{binary} | {printable} | ENCRYPTED\n".format(binary=cipher_binary,
-                                                                  printable=self.__to_printable(cipher_bytes)))
+            cipher_bineries = self.__encrypt_binary(binary_strs, self.__keys)
+            print("\r{binary} | ENCRYPTED\n".format(binary=cipher_bineries))
 
-            result += cipher_bytes.decode()
+            result += " ".join(cipher_bineries) + " "
 
         # PLOTTING AVALANCHE
         # print("\n\n Avalanche metrics:", self.__avalanche_metrics)
@@ -43,37 +56,28 @@ class Feistel(Cipher):
 
     def decipher(self, string):
         result = ""
-        cipher_bytes = str.encode(string)
+        cipher_blocks = np.array_split(string.split(), 2)
 
-        for i in range(int(len(cipher_bytes) / 8)):
-            formated = cipher_bytes[8 * i:8 * (i + 1)]
-            decrypted_bytes = self.__encrypt_bstr(formated, self.__keys[::-1])
-            decrypted_binary = self.__bstr2binary(decrypted_bytes)
-            print("\r{binary} | {printable} | DECRYPTED\n".format(binary=decrypted_binary,
-                                                                  printable=self.__to_printable(decrypted_bytes)))
+        for binary_blocks in cipher_blocks:
+            decrypted_binaries = self.__encrypt_binary(binary_blocks, self.__keys[::-1])
+            print("\r{binary} | {printable} | DECRYPTED\n".format(binary=decrypted_binaries, printable=self.__to_printable(decrypted_binaries)))
 
-            result += self.__to_printable(decrypted_bytes) + "\n"
+            result += self.__to_printable(decrypted_binaries)
         return result
 
-    def __rotate_bytes_byte(self, right_end, k):
-        """Function that rotates the bytes k places"""
-        return right_end[k:] + right_end[:k]
-
-    def __append_to_each_byte(self, right_end, k):
-        """Function that adds itself to each byte"""
-        return [byte + k for byte in right_end]
-
-    def __append_to_one_byte(self, right_end, k):
-        """Function that adds itself to 1 byte"""
-        i = k % len(right_end)
-        result = right_end[:]
-        result[i] = (k + right_end[i]) % 256
-        return result
+    def __rotate_binaries(self, right_end):
+        """Function that rotates the binray blocks"""
+        import numpy as np
+        return np.flip(right_end)
 
     def __xor_list(self, left_end, rotated_right_end):
         result = []
-        for index, c in enumerate(left_end):
-            result.append(c ^ rotated_right_end[index])
+        for index, block in enumerate(left_end):
+            local_res = ''
+            for bin_idx, binary in enumerate(block):
+                y = ord(binary) ^ ord(rotated_right_end[index][bin_idx])
+                local_res += str(y)
+            result.append(local_res)
         return result
 
     def __plot_avalanche_metrics(self, metrics):
@@ -91,47 +95,35 @@ class Feistel(Cipher):
 
         self.__avalanche_metrics.append(byte_changes_cnt)
 
-    def __execute_round(self, byte_string, keys, round, initial):
-        left_end = byte_string[:4]
-        right_end = byte_string[4:]
-        rotated_right_end = self.__rotate_bytes_byte(right_end, keys[round])
-        round_result = right_end + self.__xor_list(left_end, rotated_right_end)
+    def __execute_round(self, binary_string, initial):
+        left_end = binary_string[:4]
+        right_end = binary_string[4:]
+        round_result = right_end + self.__xor_list(left_end, right_end)
 
         self.__find_avalanche_metrics(initial, round_result)
         return round_result
 
-    def __encrypt_bstr(self, bstr, keys):
+    def __encrypt_binary(self, bstr, keys):
         """Takes a byte string and outputs a byte string"""
         last = list(bstr)
         initial = list(bstr)
         for round in range(len(keys)):
-            last = self.__execute_round(last, keys, round, initial)
-            print("\r{binary} | {printable} | ROUND {round}".format(binary=self.__bstr2binary(last),
-                                                                    printable=self.__to_printable(last),
-                                                                    round=round + 1))
+            last = self.__execute_round(last, initial)
+            print("\r{binary} | ROUND {round}".format(binary=last, round=round + 1))
 
         # Swap both sides
         swapped = last[4:] + last[:4]
 
-        return b''.join(map(lambda x: pack("B", x), swapped))
+        return swapped
 
     def __bstr2binary(self, string):
-        # return " ".join("{:02x}".format(char) for char in string)
         return " ".join("{0:08b}".format(char) for char in string)
 
     def __str2binary(self, string):
-        # return " ".join("{:02x}".format(ord(char)) for char in string)
-        return " ".join("{0:08b}".format(ord(char)) for char in string)
+        return " ".join("{0:0b}".format(ord(char)) for char in string)
 
-    # NOT USED
-    # def __hex2bstr(self, hex):
-    #    return unhexlify(hex.replace(' ', ''))
-
-    # def __hex2str(self, hex):
-    # return unhexlify(hex.replace(' ', '')).decode('utf-8')
-
-    def __to_printable(self, byte_string):
+    def __to_printable(self, binary_strings):
         result = ''
-        for byte in list(byte_string):
-            result += chr(byte)
+        for binary_block in binary_strings:
+            result += chr(int(binary_block, 2))
         return result

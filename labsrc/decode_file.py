@@ -8,7 +8,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--key', '-k')
-    parser.add_argument('--keyfile', '-kf')
+    parser.add_argument('--keyfile', '-kf', type=argparse.FileType('r'))
     parser.add_argument('--input', '-i', required=True, type=argparse.FileType('r'))
     parser.add_argument('--output', '-o', required=True, type=argparse.FileType('w+'))
     parser.add_argument('--type', '-t', required=True)
@@ -19,7 +19,7 @@ def main():
     key_file = arguments.keyfile
     if key is None and key_file is not None:
         for line in key_file:
-            key += line
+            key = list(line.split())
 
     CIPHERS.get(arguments.type)(key).decipher_file(arguments.input, arguments.output)
     print(f'Your file was successfully decoded.')
