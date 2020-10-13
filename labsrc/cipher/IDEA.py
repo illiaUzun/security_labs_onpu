@@ -5,16 +5,18 @@ from labsrc.cipher.Cipher import Cipher
 
 _NUM_ROUNDS = 8
 
-class Feistel(Cipher):
+class IDEA(Cipher):
 
     def __init__(self, key):
         self.__key = key
 
     def encipher(self, block):
-        return self._crypt(block, self.__key, "encrypt", True)
+        print(f"block = {block}, key = {self.__key}")
+        return "".join([chr(int(b)) for b in self._crypt([ord(char) for char in block], [ord(kchar) for kchar in self.__key], "encrypt", True)])
 
     def decipher(self, block):
-        return self._crypt(block, self.__key, "decrypt", True)
+        print(f"block = {block}, \nkey = {self.__key}")
+        return "".join([chr(int(b)) for b in self._crypt([ord(char) for char in block], [ord(kchar) for kchar in self.__key], "decrypt", True)])
 
     def _crypt(self, block, key, direction, printdebug):
         # Check input arguments

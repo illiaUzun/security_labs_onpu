@@ -19,7 +19,7 @@ def main():
     key_file = arguments.keyfile
     if key is None and key_file is not None:
         for line in key_file:
-            key = list(line.split())
+            key = line
 
     CIPHERS.get(arguments.type)(key).encipher_file(arguments.input, arguments.output)
     print(f'Your file was successfully encoded.')
